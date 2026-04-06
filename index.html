@@ -10,9 +10,6 @@
     :root {
       --primary: #4f8ef7;
       --primary-dark: #2d6fd6;
-      --correct: #22c55e;
-      --wrong: #ef4444;
-      --neutral: #64748b;
       --bg: #f0f4ff;
       --card: #ffffff;
       --radius: 12px;
@@ -25,7 +22,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 24px 16px;
+      padding: 24px 16px 48px;
     }
 
     h1 {
@@ -37,7 +34,7 @@
 
     #app {
       width: 100%;
-      max-width: 560px;
+      max-width: 680px;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -60,50 +57,111 @@
       display: flex;
       justify-content: space-between;
       font-size: 0.9rem;
-      color: var(--neutral);
+      color: #64748b;
       padding: 0 4px;
     }
 
-    /* 問題カード */
-    #problem-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 28px 16px;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    /* 問題リスト */
+    #problems-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    #problem {
-      font-size: 3rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      color: #1e293b;
+    .problem-row {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+      border: 2px solid transparent;
+      transition: border-color 0.2s;
+      cursor: pointer;
     }
+
+    .problem-row.active {
+      border-color: var(--primary);
+    }
+
+    .problem-row.correct {
+      border-color: #22c55e;
+      background: #f0fdf4;
+    }
+
+    .problem-row.wrong {
+      border-color: #ef4444;
+      background: #fff5f5;
+    }
+
+    .problem-num {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      width: 24px;
+      flex-shrink: 0;
+      text-align: center;
+    }
+
+    .problem-expr {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #1e293b;
+      flex: 1;
+    }
+
+    .problem-badge {
+      font-size: 1.1rem;
+      width: 32px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .problem-result {
+      font-size: 0.85rem;
+      color: #64748b;
+      flex-shrink: 0;
+    }
+
+    .problem-result.correct { color: #15803d; font-weight: 600 }
+    .problem-result.wrong   { color: #b91c1c; font-weight: 600 }
 
     /* 手書きエリア */
-    #canvas-card {
+    #canvas-section {
       background: var(--card);
       border-radius: var(--radius);
-      padding: 12px;
+      padding: 16px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
     #canvas-label {
-      font-size: 0.8rem;
-      color: var(--neutral);
-      margin-bottom: 8px;
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-bottom: 10px;
       text-align: center;
     }
 
     #canvas {
       display: block;
       width: 100%;
-      height: 180px;
+      height: 320px;
       border: 2px dashed #cbd5e1;
       border-radius: 8px;
       cursor: crosshair;
       touch-action: none;
       background: #fafcff;
+    }
+
+    #fallback-input {
+      display: none;
+      width: 100%;
+      margin-top: 10px;
+      padding: 14px;
+      font-size: 1.6rem;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      text-align: center;
     }
 
     /* ボタン */
@@ -124,69 +182,49 @@
     }
 
     button:active { transform: scale(0.97) }
-    button:disabled { opacity: 0.45; cursor: default }
+    button:disabled { opacity: 0.4; cursor: default }
 
     #check-btn {
       background: var(--primary);
       color: #fff;
     }
-
     #check-btn:hover:not(:disabled) { background: var(--primary-dark) }
 
     #clear-btn {
       background: #e2e8f0;
       color: #475569;
+      flex: 0 0 auto;
+      padding: 14px 24px;
     }
-
     #clear-btn:hover { background: #cbd5e1 }
 
-    /* フィードバック */
-    #feedback {
-      border-radius: var(--radius);
-      padding: 16px;
-      font-size: 1.05rem;
-      font-weight: 600;
-      text-align: center;
-      display: none;
-    }
-
-    #feedback.correct { background: #dcfce7; color: #15803d }
-    #feedback.wrong   { background: #fee2e2; color: #b91c1c }
-    #feedback.neutral { background: #f1f5f9; color: var(--neutral) }
-
-    /* 次の問題ボタン */
-    #next-btn {
+    #next-set-btn {
       display: none;
       background: #1e293b;
       color: #fff;
-      padding: 16px;
-      border-radius: var(--radius);
       font-size: 1.05rem;
     }
-
-    #next-btn:hover { background: #334155 }
+    #next-set-btn:hover { background: #334155 }
 
     /* 最終スコア */
     #final-screen {
       display: none;
       background: var(--card);
       border-radius: var(--radius);
-      padding: 40px 24px;
+      padding: 48px 24px;
       text-align: center;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
     #final-screen h2 { font-size: 1.8rem; color: var(--primary-dark); margin-bottom: 16px }
     #final-screen p  { font-size: 1.2rem; color: #334155; margin-bottom: 24px }
-
-    #final-score-num { font-size: 2.4rem; font-weight: 700; color: var(--primary) }
+    #final-score-num { font-size: 2.6rem; font-weight: 700; color: var(--primary) }
 
     #restart-btn {
       background: var(--primary);
       color: #fff;
-      padding: 14px 40px;
-      font-size: 1rem;
       flex: none;
+      padding: 14px 40px;
     }
     #restart-btn:hover { background: var(--primary-dark) }
   </style>
@@ -195,50 +233,38 @@
   <h1>手書き算数クイズ</h1>
 
   <div id="app">
-    <!-- ブラウザ非対応 -->
     <div id="unsupported-banner">
       このページは <strong>Chrome / Edge（最新版）</strong> が必要です。<br>
       現在のブラウザでは Handwriting Recognition API に対応していないため、
       代わりにキーボード入力で回答できます。
     </div>
 
-    <!-- ステータス -->
     <div id="status-bar">
-      <span>スコア: <strong id="score">0</strong> / 10</span>
-      <span>問題 <strong id="q-num">1</strong> / 10</span>
+      <span>スコア: <strong id="score">0</strong> / <span id="total-q">10</span></span>
+      <span>セット <strong id="set-num">1</strong> / <span id="total-sets">2</span></span>
     </div>
 
-    <!-- 問題 -->
-    <div id="problem-card">
-      <div id="problem">読み込み中...</div>
-    </div>
+    <!-- 問題一覧 -->
+    <div id="problems-list"></div>
 
-    <!-- 手書きキャンバス -->
-    <div id="canvas-card">
-      <div id="canvas-label">答えをここに手書きしてください</div>
+    <!-- 手書きエリア -->
+    <div id="canvas-section">
+      <div id="canvas-label">↑ 問題を選んで、ここに答えを手書きしてください</div>
       <canvas id="canvas"></canvas>
-      <!-- フォールバック用テキスト入力（非対応ブラウザ） -->
-      <input id="fallback-input" type="number" placeholder="答えを入力"
-        style="display:none; width:100%; margin-top:10px; padding:12px; font-size:1.4rem;
-               border:2px solid #cbd5e1; border-radius:8px; text-align:center;">
+      <input id="fallback-input" type="number" placeholder="答えを入力">
     </div>
 
-    <!-- ボタン -->
     <div class="btn-row">
-      <button id="check-btn">確認する</button>
+      <button id="check-btn" disabled>確認する</button>
       <button id="clear-btn">消す</button>
     </div>
 
-    <!-- フィードバック -->
-    <div id="feedback"></div>
-
-    <!-- 次の問題 -->
-    <button id="next-btn">次の問題 →</button>
+    <button id="next-set-btn">次のセットへ →</button>
 
     <!-- 最終スコア -->
     <div id="final-screen">
       <h2>クイズ終了！</h2>
-      <p>あなたのスコア：<br><span id="final-score-num">0</span> / 10 問正解</p>
+      <p>あなたのスコア：<br><span id="final-score-num">0</span> / <span id="final-total">10</span> 問正解</p>
       <button id="restart-btn">もう一度</button>
     </div>
   </div>
@@ -246,8 +272,10 @@
   <script>
     'use strict'
 
-    // ── 定数 ──────────────────────────────────────────────────────
-    const TOTAL = 10
+    // ── 設定 ──────────────────────────────────────────────────────
+    const PROBLEMS_PER_SET = 5
+    const TOTAL_SETS = 2                        // 合計 10 問
+    const TOTAL = PROBLEMS_PER_SET * TOTAL_SETS
 
     // ── 状態 ──────────────────────────────────────────────────────
     let recognizer = null
@@ -255,40 +283,45 @@
     let activeStroke = null
     let startTime = 0
     let latestText = ''
-    let currentAnswer = 0
-    let score = 0
-    let questionIndex = 0
-    let isAnswered = false
     let useFallback = false
+
+    // 現在のセットの問題データ: [{ display, answer, state: 'pending'|'correct'|'wrong', userAnswer }]
+    let problems = []
+    let activeIdx = -1    // 現在選択中の問題インデックス
+    let score = 0
+    let setIndex = 0      // 0-based
 
     // ── DOM ───────────────────────────────────────────────────────
     const canvas = document.getElementById('canvas')
     const ctx = canvas.getContext('2d')
-    const problemEl = document.getElementById('problem')
-    const feedbackEl = document.getElementById('feedback')
-    const nextBtn = document.getElementById('next-btn')
+    const problemsList = document.getElementById('problems-list')
+    const canvasLabel = document.getElementById('canvas-label')
     const checkBtn = document.getElementById('check-btn')
     const clearBtn = document.getElementById('clear-btn')
+    const nextSetBtn = document.getElementById('next-set-btn')
     const scoreEl = document.getElementById('score')
-    const qNumEl = document.getElementById('q-num')
+    const setNumEl = document.getElementById('set-num')
+    const totalSetsEl = document.getElementById('total-sets')
+    const totalQEl = document.getElementById('total-q')
     const finalScreen = document.getElementById('final-screen')
     const finalScoreNum = document.getElementById('final-score-num')
+    const finalTotal = document.getElementById('final-total')
     const restartBtn = document.getElementById('restart-btn')
     const fallbackInput = document.getElementById('fallback-input')
     const unsupportedBanner = document.getElementById('unsupported-banner')
 
-    // ── Canvas サイズ調整 ──────────────────────────────────────────
+    // ── Canvas サイズ ─────────────────────────────────────────────
     function resizeCanvas() {
       const rect = canvas.getBoundingClientRect()
       const dpr = window.devicePixelRatio || 1
       canvas.width = rect.width * dpr
       canvas.height = rect.height * dpr
       ctx.scale(dpr, dpr)
-      setupCtx()
+      applyCtxStyle()
     }
 
-    function setupCtx() {
-      ctx.lineWidth = 3
+    function applyCtxStyle() {
+      ctx.lineWidth = 3.5
       ctx.lineCap = 'round'
       ctx.lineJoin = 'round'
       ctx.strokeStyle = '#1e293b'
@@ -305,69 +338,50 @@
       let a, b, answer
 
       switch (op) {
-        case '+':
-          a = rand(1, 50); b = rand(1, 50)
-          answer = a + b
-          break
-        case '-':
-          a = rand(10, 99); b = rand(1, a)
-          answer = a - b
-          break
-        case '×':
-          a = rand(2, 12); b = rand(2, 12)
-          answer = a * b
-          break
-        case '÷':
-          b = rand(2, 12); answer = rand(2, 12)
-          a = b * answer
-          break
+        case '+': a = rand(1, 50); b = rand(1, 50); answer = a + b; break
+        case '-': a = rand(10, 99); b = rand(1, a); answer = a - b; break
+        case '×': a = rand(2, 12); b = rand(2, 12); answer = a * b; break
+        case '÷': b = rand(2, 12); answer = rand(2, 12); a = b * answer; break
       }
 
-      return { display: `${a}  ${op}  ${b}  ＝  ？`, answer }
+      return { display: `${a}  ${op}  ${b}  ＝  ？`, answer, state: 'pending', userAnswer: null }
     }
 
-    // ── 認識 API 初期化 ───────────────────────────────────────────
+    // ── API 初期化 ────────────────────────────────────────────────
     async function initRecognizer() {
       if (!('createHandwritingRecognizer' in navigator)) {
-        useFallback = true
-        unsupportedBanner.style.display = 'block'
-        canvas.style.display = 'none'
-        fallbackInput.style.display = 'block'
-        return
+        enableFallback(); return
       }
-
       try {
         recognizer = await navigator.createHandwritingRecognizer({ languages: ['en'] })
       } catch (e) {
         console.warn('Handwriting recognizer init failed:', e)
-        useFallback = true
-        unsupportedBanner.style.display = 'block'
-        canvas.style.display = 'none'
-        fallbackInput.style.display = 'block'
+        enableFallback()
       }
+    }
+
+    function enableFallback() {
+      useFallback = true
+      unsupportedBanner.style.display = 'block'
+      canvas.style.display = 'none'
+      fallbackInput.style.display = 'block'
     }
 
     function resetDrawing() {
       if (!recognizer) return
-      drawing = recognizer.startDrawing({
-        recognitionType: 'number',
-        alternatives: 3
-      })
+      drawing = recognizer.startDrawing({ recognitionType: 'number', alternatives: 3 })
       latestText = ''
     }
 
-    // ── Canvas 描画イベント ────────────────────────────────────────
+    // ── Canvas イベント ───────────────────────────────────────────
     function getPos(e) {
       const rect = canvas.getBoundingClientRect()
-      return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      }
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top }
     }
 
     canvas.addEventListener('pointerdown', (e) => {
       e.preventDefault()
-      if (isAnswered) return
+      if (activeIdx < 0 || problems[activeIdx].state !== 'pending') return
       const { x, y } = getPos(e)
       activeStroke = new HandwritingStroke()
       activeStroke.addPoint({ x, y, t: Date.now() - startTime })
@@ -377,7 +391,7 @@
 
     canvas.addEventListener('pointermove', (e) => {
       e.preventDefault()
-      if (!activeStroke || isAnswered) return
+      if (!activeStroke) return
       const { x, y } = getPos(e)
       activeStroke.addPoint({ x, y, t: Date.now() - startTime })
       ctx.lineTo(x, y)
@@ -389,17 +403,17 @@
       if (!activeStroke) return
       drawing.addStroke(activeStroke)
       activeStroke = null
-      getPrediction()
+      fetchPrediction()
     })
 
-    canvas.addEventListener('pointerleave', (e) => {
+    canvas.addEventListener('pointerleave', () => {
       if (!activeStroke) return
       drawing.addStroke(activeStroke)
       activeStroke = null
-      getPrediction()
+      fetchPrediction()
     })
 
-    async function getPrediction() {
+    async function fetchPrediction() {
       if (!drawing) return
       try {
         const preds = await drawing.getPrediction()
@@ -409,143 +423,186 @@
       }
     }
 
-    // ── Canvas クリア ──────────────────────────────────────────────
     function clearCanvas() {
       const dpr = window.devicePixelRatio || 1
       ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr)
-      resetDrawing()
+      if (!useFallback) resetDrawing()
       latestText = ''
     }
 
-    // ── 問題ロード ────────────────────────────────────────────────
-    function loadProblem() {
-      const { display, answer } = generateProblem()
-      currentAnswer = answer
-      problemEl.textContent = display
-      hideFeedback()
-      nextBtn.style.display = 'none'
+    // ── 問題選択 ──────────────────────────────────────────────────
+    function selectProblem(idx) {
+      if (problems[idx].state !== 'pending') return
+      activeIdx = idx
+      clearCanvas()
+      if (useFallback) fallbackInput.value = ''
+      startTime = Date.now()
       checkBtn.disabled = false
-      isAnswered = false
-
-      // Canvas / フォールバック リセット
-      if (!useFallback) {
-        clearCanvas()
-        startTime = Date.now()
-      } else {
-        fallbackInput.value = ''
-      }
-
-      // ステータス更新
-      qNumEl.textContent = questionIndex + 1
-      scoreEl.textContent = score
+      canvasLabel.textContent = `問題 ${setIndex * PROBLEMS_PER_SET + idx + 1} の答えを手書きしてください`
+      renderProblems()
     }
 
     // ── 答え確認 ──────────────────────────────────────────────────
     function checkAnswer() {
-      if (isAnswered) return
+      if (activeIdx < 0 || problems[activeIdx].state !== 'pending') return
 
       let raw = useFallback ? fallbackInput.value : latestText
       raw = raw.trim().replace(',', '.')
 
       if (raw === '') {
-        showFeedback('答えをまだ書いていません。', 'neutral')
+        canvasLabel.textContent = '答えをまだ書いていません。'
         return
       }
 
       const parsed = parseFloat(raw)
-
       if (isNaN(parsed)) {
-        showFeedback(`「${raw}」は読み取れませんでした。もう一度書いてみてください。`, 'neutral')
+        canvasLabel.textContent = `「${raw}」は読み取れませんでした。もう一度書いてみてください。`
         return
       }
 
-      isAnswered = true
-      checkBtn.disabled = true
-
-      if (Math.abs(parsed - currentAnswer) < 0.01) {
+      const prob = problems[activeIdx]
+      if (Math.abs(parsed - prob.answer) < 0.01) {
+        prob.state = 'correct'
         score++
         scoreEl.textContent = score
-        showFeedback(`正解！ ${currentAnswer} です。`, 'correct')
       } else {
-        showFeedback(`惜しい！正しい答えは ${currentAnswer} です。（あなたの答え: ${parsed}）`, 'wrong')
+        prob.state = 'wrong'
       }
+      prob.userAnswer = parsed
 
-      nextBtn.style.display = 'block'
+      checkBtn.disabled = true
+      clearCanvas()
+      renderProblems()
+
+      // 全問回答済みならセット完了
+      const allDone = problems.every(p => p.state !== 'pending')
+      if (allDone) {
+        activeIdx = -1
+        canvasLabel.textContent = '全問回答しました！'
+        nextSetBtn.style.display = 'block'
+        checkBtn.disabled = true
+      } else {
+        // 次の未回答問題を自動選択
+        const next = problems.findIndex((p, i) => i !== activeIdx && p.state === 'pending')
+        if (next >= 0) selectProblem(next)
+      }
     }
 
-    // ── フィードバック表示 ─────────────────────────────────────────
-    function showFeedback(msg, type) {
-      feedbackEl.textContent = msg
-      feedbackEl.className = type
-      feedbackEl.style.display = 'block'
+    // ── 問題カード描画 ────────────────────────────────────────────
+    function renderProblems() {
+      problemsList.innerHTML = ''
+      problems.forEach((p, i) => {
+        const row = document.createElement('div')
+        row.className = 'problem-row' +
+          (i === activeIdx ? ' active' : '') +
+          (p.state === 'correct' ? ' correct' : '') +
+          (p.state === 'wrong' ? ' wrong' : '')
+
+        const num = document.createElement('div')
+        num.className = 'problem-num'
+        num.textContent = setIndex * PROBLEMS_PER_SET + i + 1
+
+        const expr = document.createElement('div')
+        expr.className = 'problem-expr'
+        expr.textContent = p.display
+
+        const badge = document.createElement('div')
+        badge.className = 'problem-badge'
+        badge.textContent = p.state === 'correct' ? '✅' : p.state === 'wrong' ? '❌' : ''
+
+        const result = document.createElement('div')
+        result.className = 'problem-result' + (p.state !== 'pending' ? ` ${p.state}` : '')
+        if (p.state === 'correct') {
+          result.textContent = `${p.userAnswer}`
+        } else if (p.state === 'wrong') {
+          result.textContent = `答え: ${p.answer}`
+        }
+
+        row.append(num, expr, badge, result)
+
+        if (p.state === 'pending') {
+          row.addEventListener('click', () => selectProblem(i))
+        }
+
+        problemsList.appendChild(row)
+      })
     }
 
-    function hideFeedback() {
-      feedbackEl.style.display = 'none'
-      feedbackEl.className = ''
-      feedbackEl.textContent = ''
+    // ── セットロード ──────────────────────────────────────────────
+    function loadSet() {
+      problems = Array.from({ length: PROBLEMS_PER_SET }, generateProblem)
+      activeIdx = -1
+      nextSetBtn.style.display = 'none'
+      checkBtn.disabled = true
+      canvasLabel.textContent = '↑ 問題を選んで、ここに答えを手書きしてください'
+      clearCanvas()
+      if (useFallback) fallbackInput.value = ''
+
+      setNumEl.textContent = setIndex + 1
+      scoreEl.textContent = score
+      renderProblems()
+
+      // 最初の問題を自動選択
+      selectProblem(0)
+    }
+
+    // ── 次のセット or 終了 ────────────────────────────────────────
+    function goNextSet() {
+      setIndex++
+      if (setIndex >= TOTAL_SETS) {
+        showFinalScreen()
+      } else {
+        loadSet()
+      }
     }
 
     // ── 最終スコア ────────────────────────────────────────────────
     function showFinalScreen() {
-      document.getElementById('problem-card').style.display = 'none'
-      document.getElementById('canvas-card').style.display = 'none'
+      document.getElementById('canvas-section').style.display = 'none'
       document.querySelector('.btn-row').style.display = 'none'
-      hideFeedback()
-      nextBtn.style.display = 'none'
-
+      problemsList.style.display = 'none'
+      nextSetBtn.style.display = 'none'
       finalScoreNum.textContent = score
+      finalTotal.textContent = TOTAL
       finalScreen.style.display = 'block'
     }
 
     function restart() {
       score = 0
-      questionIndex = 0
+      setIndex = 0
       scoreEl.textContent = '0'
-
-      document.getElementById('problem-card').style.display = 'block'
-      document.getElementById('canvas-card').style.display = 'block'
+      document.getElementById('canvas-section').style.display = 'block'
       document.querySelector('.btn-row').style.display = 'flex'
+      problemsList.style.display = 'flex'
       finalScreen.style.display = 'none'
-
-      loadProblem()
+      loadSet()
     }
 
     // ── ボタンイベント ────────────────────────────────────────────
     checkBtn.addEventListener('click', checkAnswer)
-
     clearBtn.addEventListener('click', () => {
-      if (useFallback) {
-        fallbackInput.value = ''
-      } else {
-        clearCanvas()
-      }
-      hideFeedback()
+      clearCanvas()
+      if (useFallback) fallbackInput.value = ''
     })
-
-    nextBtn.addEventListener('click', () => {
-      questionIndex++
-      if (questionIndex >= TOTAL) {
-        showFinalScreen()
-      } else {
-        loadProblem()
-      }
-    })
-
+    nextSetBtn.addEventListener('click', goNextSet)
     restartBtn.addEventListener('click', restart)
+
+    fallbackInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkAnswer()
+    })
 
     // ── 初期化 ────────────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', async () => {
+      totalSetsEl.textContent = TOTAL_SETS
+      totalQEl.textContent = TOTAL
+      finalTotal.textContent = TOTAL
       resizeCanvas()
       await initRecognizer()
       if (!useFallback) resetDrawing()
-      startTime = Date.now()
-      loadProblem()
+      loadSet()
     })
 
-    window.addEventListener('resize', () => {
-      resizeCanvas()
-    })
+    window.addEventListener('resize', resizeCanvas)
   </script>
 </body>
 </html>
