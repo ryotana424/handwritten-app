@@ -34,10 +34,10 @@
 
     #app {
       width: 100%;
-      max-width: 680px;
+      max-width: 860px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
 
     /* ブラウザ非対応バナー */
@@ -65,55 +65,63 @@
     .problem-card {
       background: var(--card);
       border-radius: var(--radius);
-      padding: 16px;
+      padding: 14px 16px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.07);
       border: 2px solid transparent;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, background 0.2s;
+      display: flex;
+      align-items: stretch;
+      gap: 16px;
     }
 
     .problem-card.correct { border-color: #22c55e; background: #f0fdf4 }
     .problem-card.wrong   { border-color: #ef4444; background: #fff5f5 }
 
-    .problem-header {
+    /* 左列：問題番号・式・フィードバック */
+    .problem-left {
       display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+      width: 200px;
+      flex-shrink: 0;
     }
 
     .problem-num {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: #94a3b8;
-      width: 20px;
-      flex-shrink: 0;
     }
 
     .problem-expr {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       color: #1e293b;
-      flex: 1;
+      line-height: 1.2;
     }
 
     .problem-feedback {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 600;
-      flex-shrink: 0;
+      min-height: 1.2em;
     }
 
     .problem-feedback.correct { color: #15803d }
     .problem-feedback.wrong   { color: #b91c1c }
 
-    /* 各問題の手書きエリア */
-    .canvas-wrap {
-      position: relative;
+    /* 右列：手書きエリア */
+    .problem-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
     }
 
     .problem-canvas {
       display: block;
       width: 100%;
-      height: 320px;
+      height: 140px;
       border: 2px dashed #cbd5e1;
       border-radius: 8px;
       cursor: crosshair;
@@ -123,56 +131,58 @@
 
     .problem-card.correct .problem-canvas,
     .problem-card.wrong .problem-canvas {
-      opacity: 0.4;
+      opacity: 0.35;
       pointer-events: none;
     }
+
+    .clear-btn {
+      align-self: flex-end;
+      padding: 5px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #e2e8f0;
+      color: #475569;
+      transition: background 0.15s;
+    }
+    .clear-btn:hover { background: #cbd5e1 }
+    .problem-card.correct .clear-btn,
+    .problem-card.wrong .clear-btn { display: none }
 
     .problem-fallback {
       display: none;
       width: 100%;
-      margin-top: 8px;
-      padding: 14px;
-      font-size: 1.6rem;
+      padding: 10px;
+      font-size: 1.4rem;
       border: 2px solid #cbd5e1;
       border-radius: 8px;
       text-align: center;
     }
 
-    .card-btn-row {
+    /* 採点ボタンエリア */
+    #grade-area {
       display: flex;
-      gap: 8px;
-      margin-top: 10px;
+      gap: 10px;
+      margin-top: 4px;
     }
 
-    .check-btn {
+    #grade-btn {
       flex: 1;
-      padding: 11px;
+      padding: 16px;
       border: none;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
+      border-radius: var(--radius);
+      font-size: 1.1rem;
+      font-weight: 700;
       cursor: pointer;
       background: var(--primary);
       color: #fff;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-    .check-btn:hover:not(:disabled) { background: var(--primary-dark) }
-    .check-btn:active { transform: scale(0.97) }
-    .check-btn:disabled { opacity: 0.4; cursor: default }
-
-    .clear-btn {
-      padding: 11px 18px;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      background: #e2e8f0;
-      color: #475569;
       transition: background 0.15s, transform 0.1s;
     }
-    .clear-btn:hover { background: #cbd5e1 }
-    .clear-btn:active { transform: scale(0.97) }
+    #grade-btn:hover { background: var(--primary-dark) }
+    #grade-btn:active { transform: scale(0.98) }
+    #grade-btn:disabled { opacity: 0.4; cursor: default }
 
     /* 次のセットボタン */
     #next-set-btn {
@@ -234,6 +244,10 @@
 
     <div id="problems-container"></div>
 
+    <div id="grade-area">
+      <button id="grade-btn">採点する</button>
+    </div>
+
     <button id="next-set-btn">次のセットへ →</button>
 
     <div id="final-screen">
@@ -254,13 +268,12 @@
     let useFallback = false
     let score = 0
     let setIndex = 0
-
-    // 各問題の状態
-    // { display, answer, state, drawing, activeStroke, startTime, latestText, canvas, ctx }
     let problems = []
 
     // ── DOM refs ──────────────────────────────────────────────────
     const container = document.getElementById('problems-container')
+    const gradeBtn = document.getElementById('grade-btn')
+    const gradeArea = document.getElementById('grade-area')
     const nextSetBtn = document.getElementById('next-set-btn')
     const scoreEl = document.getElementById('score')
     const setNumEl = document.getElementById('set-num')
@@ -343,12 +356,10 @@
         e.preventDefault()
         if (prob.state !== 'pending') return
         const rect = c.getBoundingClientRect()
-        const x = e.clientX - rect.left
-        const y = e.clientY - rect.top
         prob.activeStroke = new HandwritingStroke()
-        prob.activeStroke.addPoint({ x, y, t: Date.now() - prob.startTime })
+        prob.activeStroke.addPoint({ x: e.clientX - rect.left, y: e.clientY - rect.top, t: Date.now() - prob.startTime })
         prob.ctx.beginPath()
-        prob.ctx.moveTo(x, y)
+        prob.ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top)
       })
 
       c.addEventListener('pointermove', (e) => {
@@ -366,17 +377,9 @@
         if (!prob.activeStroke) return
         prob.drawing.addStroke(prob.activeStroke)
         prob.activeStroke = null
+        // 認識結果を更新しておく（採点時に使う）
         prob.drawing.getPrediction().then(preds => {
-          if (preds.length > 0) {
-            prob.latestText = preds[0].text
-            // 数字として認識できたら自動で確認
-            const parsed = parseFloat(prob.latestText.trim().replace(',', '.'))
-            if (!isNaN(parsed) && prob.state === 'pending') {
-              const card = prob.canvas.closest('.problem-card')
-              const feedbackEl = card.querySelector('.problem-feedback')
-              checkAnswer(prob, card, feedbackEl)
-            }
-          }
+          if (preds.length > 0) prob.latestText = preds[0].text
         }).catch(() => {})
       }
 
@@ -384,54 +387,56 @@
       c.addEventListener('pointerleave', finishStroke)
     }
 
-    // ── 答え確認 ──────────────────────────────────────────────────
-    function checkAnswer(prob, card, feedbackEl) {
-      if (prob.state !== 'pending') return
+    // ── 採点（全問まとめて） ──────────────────────────────────────
+    async function gradeAll() {
+      gradeBtn.disabled = true
 
-      const raw = (useFallback ? prob.fallbackInput.value : prob.latestText).trim().replace(',', '.')
+      // 認識中のストロークが残っている場合、最新の prediction を取得してから採点
+      const predPromises = problems.map(prob => {
+        if (prob.state !== 'pending' || !prob.drawing) return Promise.resolve()
+        return prob.drawing.getPrediction().then(preds => {
+          if (preds.length > 0) prob.latestText = preds[0].text
+        }).catch(() => {})
+      })
+      await Promise.all(predPromises)
 
-      if (raw === '') {
-        feedbackEl.textContent = '答えを書いてください'
-        feedbackEl.className = 'problem-feedback'
-        return
-      }
-      const parsed = parseFloat(raw)
-      if (isNaN(parsed)) {
-        feedbackEl.textContent = `「${raw}」は読み取れませんでした`
-        feedbackEl.className = 'problem-feedback'
-        return
-      }
+      problems.forEach(prob => {
+        if (prob.state !== 'pending') return
 
-      if (Math.abs(parsed - prob.answer) < 0.01) {
-        prob.state = 'correct'
-        score++
-        scoreEl.textContent = score
-        feedbackEl.textContent = `✅ 正解！`
-        feedbackEl.className = 'problem-feedback correct'
-      } else {
-        prob.state = 'wrong'
-        feedbackEl.textContent = `❌ 答え: ${prob.answer}`
-        feedbackEl.className = 'problem-feedback wrong'
-      }
+        const card = prob.canvas.closest('.problem-card')
+        const feedbackEl = card.querySelector('.problem-feedback')
+        const raw = (useFallback ? prob.fallbackInput.value : prob.latestText).trim().replace(',', '.')
 
-      card.classList.add(prob.state)
-      card.querySelector('.check-btn').disabled = true
-
-      // 全問回答チェック
-      if (problems.every(p => p.state !== 'pending')) {
-        nextSetBtn.style.display = 'block'
-      } else {
-        // 次の未回答問題にスクロール＆フォーカス
-        const nextProb = problems.find(p => p.state === 'pending')
-        if (nextProb) {
-          setTimeout(() => {
-            nextProb.canvas.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          }, 200)
+        if (raw === '') {
+          prob.state = 'wrong'
+          feedbackEl.textContent = `❌ 答え: ${prob.answer}（未記入）`
+          feedbackEl.className = 'problem-feedback wrong'
+        } else {
+          const parsed = parseFloat(raw)
+          if (isNaN(parsed)) {
+            prob.state = 'wrong'
+            feedbackEl.textContent = `❌ 答え: ${prob.answer}（読取失敗）`
+            feedbackEl.className = 'problem-feedback wrong'
+          } else if (Math.abs(parsed - prob.answer) < 0.01) {
+            prob.state = 'correct'
+            score++
+            feedbackEl.textContent = `✅ 正解！`
+            feedbackEl.className = 'problem-feedback correct'
+          } else {
+            prob.state = 'wrong'
+            feedbackEl.textContent = `❌ 答え: ${prob.answer}（あなた: ${parsed}）`
+            feedbackEl.className = 'problem-feedback wrong'
+          }
         }
-      }
+        card.classList.add(prob.state)
+      })
+
+      scoreEl.textContent = score
+      gradeArea.style.display = 'none'
+      nextSetBtn.style.display = 'block'
     }
 
-    // ── セットレンダリング ────────────────────────────────────────
+    // ── セットロード ──────────────────────────────────────────────
     function loadSet() {
       problems = Array.from({ length: PROBLEMS_PER_SET }, () => ({
         ...generateProblem(),
@@ -445,23 +450,24 @@
         fallbackInput: null,
       }))
 
-      nextSetBtn.style.display = 'none'
       container.innerHTML = ''
+      gradeArea.style.display = 'flex'
+      gradeBtn.disabled = false
+      nextSetBtn.style.display = 'none'
       setNumEl.textContent = setIndex + 1
       scoreEl.textContent = score
 
       problems.forEach((prob, i) => {
-        // カード
         const card = document.createElement('div')
         card.className = 'problem-card'
 
-        // ヘッダー
-        const header = document.createElement('div')
-        header.className = 'problem-header'
+        // 左列
+        const left = document.createElement('div')
+        left.className = 'problem-left'
 
         const num = document.createElement('div')
         num.className = 'problem-num'
-        num.textContent = setIndex * PROBLEMS_PER_SET + i + 1
+        num.textContent = `問 ${setIndex * PROBLEMS_PER_SET + i + 1}`
 
         const expr = document.createElement('div')
         expr.className = 'problem-expr'
@@ -470,29 +476,22 @@
         const feedback = document.createElement('div')
         feedback.className = 'problem-feedback'
 
-        header.append(num, expr, feedback)
+        left.append(num, expr, feedback)
 
-        // Canvas
+        // 右列
+        const right = document.createElement('div')
+        right.className = 'problem-right'
+
         const canvasEl = document.createElement('canvas')
         canvasEl.className = 'problem-canvas'
         prob.canvas = canvasEl
 
-        // フォールバック入力
         const fi = document.createElement('input')
         fi.type = 'number'
         fi.placeholder = '答えを入力'
         fi.className = 'problem-fallback'
         if (useFallback) fi.style.display = 'block'
         prob.fallbackInput = fi
-
-        // ボタン行
-        const btnRow = document.createElement('div')
-        btnRow.className = 'card-btn-row'
-
-        const checkBtn = document.createElement('button')
-        checkBtn.className = 'check-btn'
-        checkBtn.textContent = '確認する'
-        checkBtn.addEventListener('click', () => checkAnswer(prob, card, feedback))
 
         const clearBtn = document.createElement('button')
         clearBtn.className = 'clear-btn'
@@ -503,13 +502,10 @@
           feedback.className = 'problem-feedback'
         })
 
-        fi.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkAnswer(prob, card, feedback) })
-
-        btnRow.append(checkBtn, clearBtn)
-        card.append(header, canvasEl, fi, btnRow)
+        right.append(canvasEl, fi, clearBtn)
+        card.append(left, right)
         container.appendChild(card)
 
-        // Canvas 初期化（DOM に追加後）
         requestAnimationFrame(() => {
           setupCanvas(prob, canvasEl)
           if (!useFallback) {
@@ -528,12 +524,12 @@
       } else {
         container.innerHTML = ''
         loadSet()
-        window.scrollTo({ top: 0, behavior: 'smooth' })
       }
     }
 
     function showFinalScreen() {
       container.style.display = 'none'
+      gradeArea.style.display = 'none'
       nextSetBtn.style.display = 'none'
       finalScoreNum.textContent = score
       finalTotal.textContent = TOTAL
@@ -545,13 +541,13 @@
       setIndex = 0
       container.style.display = 'flex'
       container.style.flexDirection = 'column'
-      container.style.gap = '16px'
+      container.style.gap = '12px'
       finalScreen.style.display = 'none'
       loadSet()
-      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    // ── ボタンイベント ────────────────────────────────────────────
+    // ── イベント ──────────────────────────────────────────────────
+    gradeBtn.addEventListener('click', gradeAll)
     nextSetBtn.addEventListener('click', goNextSet)
     restartBtn.addEventListener('click', restart)
 
@@ -568,7 +564,7 @@
       finalTotal.textContent = TOTAL
       container.style.display = 'flex'
       container.style.flexDirection = 'column'
-      container.style.gap = '16px'
+      container.style.gap = '12px'
       await initRecognizer()
       loadSet()
     })
